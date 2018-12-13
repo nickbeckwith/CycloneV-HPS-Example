@@ -29,9 +29,15 @@ A run through on how to communicate to the FPGA fabric through the HPS's etherne
 
 * From here, open the included quartus project file. Look at the top level then find your way over to qsys/platform designer which can be found in `tools->Qsys` or `tools->Platform Designer`.
 * Upon opening, you will find that the HPS is already hooked up like in the previous examples. Along with the HPS being connected to onchip_memory (instead of SRAM), we have PIO like the last example for switches, buttons and LEDs. If you'd like, you could also connect the hex as an exercise. There also are JTAGs to an avalon bus master that I do not know how to use. Might be useful to figure out timing across the bus if needed. 
-* Add two fifos of desired width and depth just like you did with the PIO. Make sure to turn backpressure off. I also do not use interrupts but instead use the status interface. Interrupts may be useful if you figure it out. Also, once you get AVALON_MM working the next step may be learning the avalon streaming interface. // INSERT IP_FIFO.JPG here!! // insert FIFO_config here!
-* We now have two fifos that are renamed to h2f_fifo and f2h_fifo-- h being HPS and f being FPGA. // insert qsys_start img
-* Next we will export the data signals on the fpga side. // insert export.jpg
-* Finally, we will connect the clocks, resets and bridges to the HPS. We will be using the h2f lightweight AXI bus for status signals such as the CSR and the 'heavyweight' h2f and f2h AXI busses for data. Also, we connect the clocks and resets at the time instead of exporting them to prevent having to connect them in the top level. // insert qsys_connect.jpg
-* To complete the qsys system, assign base addresses and interrupt numbers (if needed) which is found at `System->Assign Base Addresses`. These addresses are the memory offsets where the HPS can find the device. The actual address is found by adding the offset to the base bus address. For example, the HPS2FPGA AXI bus is found at 0xC0000000. Generate the HDL and close out of qsys. // insert qsys_final.jpg
+* Add two fifos of desired width and depth just like you did with the PIO. Make sure to turn backpressure off. I also do not use interrupts but instead use the status interface. Interrupts may be useful if you figure it out. Also, once you get AVALON_MM working the next step may be learning the avalon streaming interface.
+![Where to find FIFO ip](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/ip_fifo.jpg)
+![FIFO ip configuration](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/fifo_config.jpg)
+* We now have two fifos that are renamed to h2f_fifo and f2h_fifo-- h being HPS and f being FPGA.
+![Qsys initial](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/qsys_start.jpg)
+* Next we will export the data signals on the fpga side.
+![Qsys export](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/export.jpg)
+* Finally, we will connect the clocks, resets and bridges to the HPS. We will be using the h2f lightweight AXI bus for status signals such as the CSR and the 'heavyweight' h2f and f2h AXI busses for data. Also, we connect the clocks and resets at the time instead of exporting them to prevent having to connect them in the top level.
+![Qsys connected](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/qsys_connect.jpg)
+* To complete the qsys system, assign base addresses and interrupt numbers (if needed) which is found at `System->Assign Base Addresses`. These addresses are the memory offsets where the HPS can find the device. The actual address is found by adding the offset to the base bus address. For example, the HPS2FPGA AXI bus is found at 0xC0000000. Generate the HDL and close out of qsys.
+![Qsys final](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/qsys_final.jpg)
 
