@@ -9,7 +9,7 @@ A run through on how to communicate to the FPGA fabric through the HPS's etherne
    - [Your board's cd](http://download.terasic.com/)
    - [DE Series Linux image](https://www.intel.com/content/www/us/en/programmable/support/training/university/materials-software.html)
    
-* In a new project directory read and complete up to and including section 3.3 of Intel's FPGA and linux [tutorial](ftp://ftp.intel.com/pub/fpgaup/pub/Intel_Material/18.0/Tutorials/Linux_On_DE_Series_Boards.pdf).
+* In a new project directory read and complete up to and including section 3.3 of Intel's FPGA and linux [tutorial](ftp://ftp.intel.com/pub/fpgaup/pub/Intel_Material/18.0/Tutorials/Linux_On_DE_Series_Boards.pdf). Keep in mind quartus doesn't always play nice with directories that have spaces.
    - This tutorial teaches you how to communicate to your board's HPS system over serial as well as how to setup linux on the HPS system
    - The linux image suggested automatically configures your FPGA on boot. We won't be using this configuration but it is helpful for pure HPS applications.
    - For section 2.3, use the linux image for your board.
@@ -27,4 +27,11 @@ A run through on how to communicate to the FPGA fabric through the HPS's etherne
 ## Guide to creating your own FIFO implementation
 * In previous FPGA-only work, FPGA projects started with SystemBuilder found in `CD/Tools/SystemBuilder/`. We could start the project there. However, we would have to connect the HPS system ourselves when we eventually instaitate it in Quartus. Much more tenacious people than I have already done that, so we will go from their work. Copy over `CD/Demonstrations/SOC_FPGA/dex_soc_GHRD` to your desired project directory. GHRD is a reference design that includes everything you need including an instantiated HPS on the top level. In this directory, there is a makefile that suggests it's useful. I would check this out if you have time especially since it might have scripts that help you setup [uboot](https://rocketboards.org/foswiki/Documentation/PreloaderUbootCustomization131).
 
-* From here, open the included quartus project file. Before looking at the top level, find your way over to qsys. 
+* From here, open the included quartus project file. Look at the top level then find your way over to qsys/platform designer which can be found in `tools->Qsys` or `tools->Platform Designer`.
+* Upon opening, you will find that the HPS is already hooked up like in the previous examples. Along with the HPS being connected to onchip_memory (instead of SRAM), we have PIO like the last example for switches, buttons and LEDs. If you'd like, you could also connect the hex as an exercise. There also are JTAGs to an avalon bus master that I do not know how to use. Might be useful to figure out timing across the bus if needed. 
+* Add two fifos of desired width and depth just like you did with the PIO. Make sure to turn backpressure off. I also do not use interrupts but instead use the status interface. Interrupts may be useful if you figure it out. Also, once you get AVALON_MM working the next step may be learning the avalon streaming interface. // INSERT IP_FIFO.JPG here!! // insert FIFO_config here!
+* We now have two fifos that are renamed to h2f_fifo and f2h_fifo-- h being HPS and f being FPGA. // insert qsys_start img
+* Next we will export the data signals on the fpga side. // insert export.jpg
+* Finally, we will connect the clocks, resets and bridges to the HPS. We will be using the h2f lightweight AXI bus for status signals such as the CSR and the 'heavyweight' h2f and f2h AXI busses for data. Also, we connect the clocks and resets at the time instead of exporting them to prevent having to connect them in the top level. // insert qsys_connect.jpg
+* To complete the qsys system, assign base addresses and interrupt numbers (if needed) which is found at `System->Assign Base Addresses`. These addresses are the memory offsets where the HPS can find the device. The actual address is found by adding the offset to the base bus address. For example, the HPS2FPGA AXI bus is found at 0xC0000000. Generate the HDL and close out of qsys. // insert qsys_final.jpg
+
