@@ -1,4 +1,4 @@
-# DE-SoC-FIFO-Example
+# DE-Series-FIFO-Example
 A run through on how to communicate to the FPGA fabric through the HPS's ethernet port. I'm doing this so future Badgers taking ECE 554 don't have to struggle with the low bandwidth of UART. This example was inspired by the kind people at Cornell who posted [this](https://people.ece.cornell.edu/land/courses/ece5760/DE1_SOC/HPS_peripherials/FPGA_addr_index.html)
 
 ## How to run this example for the DE1-SoC Board
