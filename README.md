@@ -16,7 +16,7 @@ A run through on how to communicate to the FPGA fabric through the HPS's etherne
    - Even though you may not want to use VNC, you should configure connection over ethernet if your project requires it. Details are in section 2.7.
    - For section 3.3, to fully understand where the address 0xFF200000 comes from, look at the address map for Cyclone V [here](https://www.intel.com/content/www/us/en/programmable/hps/cyclone-v/hps.html).
    - Take a gander at section 3.4.3 if you plan to use native compiling and makefiles. You could try configuring startup scripts like .bashrc to ask the date and time over ethernet. Let me know if you get something like this working.
-   - For more information about the SoC-Computer, take a look at [this](ftp://ftp.intel.com/Pub/fpgaup/pub/Intel_Material/18.0/Computer_Systems/DE1-SoC/DE1-SoC_Computer_ARM.pdf).
+   - For more information about the SoC-Computer, take a look at [this](ftp.intel.com/Pub/fpgaup/pub/Intel_Material/18.0/Computer_Systems/DE1-SoC/DE1-SoC_Computer_ARM.pdf).
 * In a new project directory, read and complete the My first HPS-FPGA tutorial found in `CD/UserManual/My_First_HPS-Fpga.pdf` or [here](http://terasic.yubacollegecompsci.com/resources/My_First_HPS-Fpga.pdf).
    - I didn't find it was neccesary to read my first HPS or my first FPGA, but any missing information should be found there.
    - Pay attention to qsys/platform designer usage. Some important points to notice:
