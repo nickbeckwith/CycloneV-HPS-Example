@@ -41,6 +41,42 @@ A run through on how to communicate to the FPGA fabric through the HPS's etherne
 * To complete the qsys system, assign base addresses and interrupt numbers (if needed) which is found at `System->Assign Base Addresses`. These addresses are the memory offsets where the HPS can find the device. The actual address is found by adding the offset to the base bus address. For example, the HPS2FPGA AXI bus is found at 0xC0000000 so the f2hfifo out data is found at 0xC0010000. Generate the HDL and close out of qsys.
 ![Qsys final](https://github.com/nickbeckwith/DE-Series-FIFO-Example/blob/master/images/qsys_final.jpg)
 ## TODO insert how to change the fpga top level here. 
+```Verilog
+//=======================================================
+//  create more readable signals
+//=======================================================
+wire h2f_full, h2f_empty, f2h_full, f2h_empty;
+wire h2f_almost_empty, f2h_almost_full;
+//assign h2f_full	= h2f_out_csr_readdata[7];
+//assign h2f_empty	= ~(|h2f_out_csr_readdata);
+//assign f2h_full	= f2h_in_csr_readdata[7];
+//assign f2h_empty	= ~(|f2h_in_csr_readdata);
+assign h2f_almost_empty = ~(|h2f_out_csr_readdata[7:4]);
+assign f2h_almost_full  = f2h_in_csr_readdata[7] | (&f2h_in_csr_readdata[6:3]);
+// reminder of other signals
+// h2f_readdata, h2f_read
+// f2h_in_writedata, f2h_in_write
+
+// Confirmed: data read to q is 1 clock
+// Confirmed: No write delay
+// Notes: key 1 is pulsed, Key 2 is not pulsed. both act as read
+// Actual FIFO operation
+wire req_transaction;
+reg transaction;
+assign req_transaction = (KEY1_pulse | ~KEY[2]) & ~h2f_almost_empty & ~f2h_almost_full;
+
+always @(posedge clk)
+	transaction <= req_transaction;
+
+assign f2h_in_writedata = h2f_readdata;
+assign h2f_read = req_transaction;
+assign f2h_in_write = transaction;
+```
+* This code gives us readable names for all the signals. Keep in mind we do not actually get a almost full and almost empty signal like we do for FIFO's instantiated with altera's megafunction wizard. Instead we create these signals by reading the fill line and using an arbitrary amount to determine the fill level. In the `h2f_almost_empty` case, we have it be set when the fill level is less than or equal to 15.
+* `h2f_full` and similar signals that are in a seperate address in memory can only be accessed when the csr address is 1 and are unsable in the current code. Change the csr address to 1 if you would like to use these signals.
+* We use almost empty and almost full to avoid queuing up an invalid write/read transaction.
+* To deal with delays from the read operation, we add a single clock delay to the write operation to allow a write and a read operation to occur together.
+* Key2 allows bursting of data between fifos while key1 exchanges two bytes per press. These are used mostly for testing.
 ## TODO generate header file
 ## Software side
 The primary components of the software can be found in the example [main.c](src/main.c). In this section, I'll go through the file block by block. Our definitions are as follows.
@@ -48,9 +84,9 @@ The primary components of the software can be found in the example [main.c](src/
 // Pointers
 // AXI bus address details
 #define AXI_MASTER_BASE			(0xC0000000)			// fixed address for AXI bus in CV
-#define AXI_MASTER_SPAN         (0x00100000)			// Adjust to contain addresses you want
-#define AXI_MASTER_MASK			(AXI_MASTER_SPAN - 1)	// If you pick span carefully, mask will
-														// help you address the right mem block
+#define AXI_MASTER_SPAN         	(0x00100000)			// Adjust to contain addresses you want
+#define AXI_MASTER_MASK			(AXI_MASTER_SPAN - 1)		// If you pick span carefully, mask will
+									// help you address the right mem block
 // LW bus address details
 #define LW_BUS_BASE 			(0xff200000)			// fixed address for LW bus in CV
 #define LW_BUS_SPAN 			(0x00010000)			// Adjust to your liking. I don't need to 
