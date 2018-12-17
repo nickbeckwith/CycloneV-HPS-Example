@@ -126,6 +126,7 @@ if ((fd = open( "/dev/mem", ( O_RDWR | O_SYNC))) == -1) {
 * We overzealously map memory addresses. Just be sure to refer to the right location in memory.
 * This maps all LW-AXI memory locations such as the csr registers and LEDs.
 * We do the same for the AXI memory bus but with the AXI address specifications.
+* The H2F_FIFO_IN_CSR_BASE comes from the header file we generated earlier. You may have different names and should adjust accordingly. By using the generated header file, you can change qsys and assign new addresses but keep the same main.c.
 ```C
 while(1) {
    FIFO_WRITE_BLOCK(fgetc(stdin));
